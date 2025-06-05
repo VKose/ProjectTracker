@@ -1,0 +1,50 @@
+.todo-card {
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #fafafa;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.todo-card:hover {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.todo-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.todo-card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.card-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-actions select {
+  padding: 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+}
+
+.todo-title-link {
+  color: #1e40af; 
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.todo-title-link:hover {
+  color: #1d4ed8; 
+  text-decoration: none; /* alt çizgiyi kaldır linkte */
+}

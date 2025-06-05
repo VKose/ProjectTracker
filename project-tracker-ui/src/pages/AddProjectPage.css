@@ -1,0 +1,63 @@
+.add-project-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #fefefe;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-project-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.project-form input,
+.project-form textarea,
+.project-form select {
+  padding: 10px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #1f2937;
+  transition: border-color 0.3s;
+}
+
+.project-form input:focus,
+.project-form textarea:focus,
+.project-form select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.project-form button {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.project-form button:hover {
+  background-color: #0056b3;
+}
+
+.project-form button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  margin-bottom: 15px;
+}

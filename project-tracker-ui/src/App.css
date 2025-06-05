@@ -1,0 +1,75 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+/* Sayfa kapsayıcıları */
+.page-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Başlıklar */
+.page-container h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+/* Form ve girişler */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input, textarea, select {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Butonlar */
+button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #2563eb;
+}
+
+/* Başarı ve hata mesajları */
+.message {
+  font-weight: 500;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.message.success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.message.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
