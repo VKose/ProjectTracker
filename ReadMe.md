@@ -9,19 +9,67 @@ Farklı rollerle kullanıcıların erişim ve yetki düzeyleri kısıtlanarak ko
 
 **Proje Yapısı
 
-ProjectTracker/
-── ProjectTrackerAPI/ # .NET Backend
-──| Controllers/
-──|Models/
-──| Data/AppDbContext.cs
-──|Services/EmailService.cs #SMTP Mail Sistemi
+*Backend (ASP.NET Core API)
+    Controllers         API uç noktaları (Endpoint'ler)
+    Models              Veri modelleri (User, Project, Todo, Customer vb.)
+    DTOs                Veri transfer nesneleri (Register, Login için)
+    Helpers             JWT oluşturma, şifre hashleme gibi yardımcı sınıflar
+    Services            E-posta servisi, background worker (DailyTaskNotifier)
+    Data                DbContext (EF Core ile DB bağlantısı)
+    Program.cs          Uygulama yapılandırması, middleware, JWT ayarları
 
-── project-tracker-ui/ # React Frontend
-── | components/
-── |pages/
-── |api/axios.js
-── |utils/auth.js
-── |App.js
+1) Controllers/
+ProjectController, TodoController, UserController, CustomerController, AuthController
+Her controller, belirli bir modelin tüm CRUD işlemlerini sağlar.
+Yetkilendirme [Authorize] ve [Authorize(Roles="...")] ile sağlanır.
+2) Models/
+User, Project, Todo, Customer sınıfları.
+EF Core kullanarak veritabanı ile eşleşir.
+3) DTOs/
+UserRegisterDto, UserLoginDto gibi veri transfer sınıfları.
+4) Helpers/
+JwtHelper.cs: Kullanıcı girişinden sonra JWT üretir.
+PasswordHasher.cs: SHA256 ile parola hashleme yapılır.
+5) Services/
+EmailService.cs: SMTP ile e-posta gönderme servisi.
+DailyTaskNotifier.cs: BackgroundService ile her gün 09:00’da görev hatırlatma maili atar.
+6) Data/AppDbContext.cs
+EF Core üzerinden tüm veritabanı işlemleri burada yönetilir.
+7) Program.cs
+Swagger yapılandırması, JWT yapılandırması
+Middleware sıralaması: UseCors(), UseAuthentication(), UseAuthorization()
+Servis kayıtları (AddScoped, AddSingleton, AddHostedService)
+
+Güvenlik ve Yetkilendirme;
+JWT Token kullanılır.
+Swagger'da da [Authorize] desteği vardır.
+
+Rollere göre endpoint erişimi kısıtlanır;
+Admin: Her şeye erişebilir.
+Manager: Görev ve proje yönetimi yapabilir.
+Employee: Sadece kendi görevlerini görür.
+    
+   *Frontend (React.js)
+     pages               Sayfalar (LoginPage, TodosPage, ProjectsPage vs.)
+     components          Ortak bileşenler (Navbar, TodoCard, ProjectCard)
+     utils               Token işlemleri (getUserFromToken)
+     api                 Axios ile API çağrıları (interceptor)
+     App.js              Sayfa yönlendirme (router, private route)
+
+     1) pages/
+     Kullanıcı arayüz sayfaları: LoginPage, ProjectsPage, AddTodoPage, DashboardPage vs.
+     Sayfa bazlı yetki kontrolü (örn. sadece Admin /users görebilir).
+     2) components/
+     Navbar: Kullanıcının rolüne göre gösterilecek linkler değişir.
+     PrivateRoute: Eğer kullanıcı login değilse token kontrol edilir, yoksa /login'e yönlendirilir.
+     ProjectCard, TodoCard: Listeleme ve işlemler için kart bileşenleri.
+     3) utils/auth.js
+     getUserFromToken(): LocalStorage’daki JWT'den kullanıcı bilgilerini parse eder.
+     4) api/axios.js
+     Tüm API isteklerinde token'ı otomatik ekler (axios.interceptors.request).
+     5) App.js
+     Tüm route’lar burada tanımlanır.
+     Route bazlı yetkilendirme yapılır: Örn. /dashboard → PrivateRoute
 
 **Veritabanı Yapısı (Microsoft SQL Server)
 
@@ -30,9 +78,34 @@ Projects – Her biri bir müşteriye ait projeler
 Todos – Görevler (bir projeye ve kullanıcıya atanabilir)
 Customers – Proje sahibi müşteri firmalar
 
-User - Projects → many-to-many (bir kullanıcı birden fazla projede olabilir)
-Projects - Todo → one-to-many
-Customer - Projects → one-to-many
+Customer – Project	One-to-Many	Bir müşteri birden çok projeye sahip olabilir
+Project – User	  	Many-to-Many	Projede birden çok kullanıcı olabilir
+User – Todo		One-to-Many	Bir kullanıcıya birden çok görev atanabilir
+Project – Todo		One-to-Many	Her görev bir projeye bağlıdır
+
+*İşleyiş Akışı Örneği*
+
+Giriş (Login):
+Kullanıcı /login sayfasından giriş yapar.
+Token alınır, localStorage'a kaydedilir.
+React getUserFromToken() ile kullanıcının kimliğini, rolünü ve e-postasını çözer.
+Token her API isteğine otomatik olarak eklenir (axios interceptor).
+
+Proje Ekleme:
+/add-project sayfası açılır (sadece Admin veya Manager).
+React formu ile proje bilgileri alınır.
+POST /api/project endpointine gönderilir.
+Ekleme başarılıysa /projects sayfasına yönlendirilir.
+
+Görev Hatırlatma Maili:
+Backend tarafında DailyTaskNotifier.cs, her gün saat 09:00'da devreye girer.
+DueDate == tomorrow olan görevleri bulur.
+EmailService.Send() ile görev sahibine e-posta gönderilir.
+
+E-postaların gönderilebilmesi için:
+EmailService.cs yapılandırılmalı
+appsettings.json içinde SMTP ayarları (Host, Port, Username, Password) doğru girilmelidir.
+NOT : E-posta işlemleri için mailtrap kullanıldı.
 
 ** Özellikler
 
@@ -130,17 +203,6 @@ npm start
 
 4) Tarayıcıda açın:
 http://localhost:3000 (port numarası farklılık gösterebilir)
-
-
-***Görev Bildirim Mail Servisi
-
-DailyTaskNotifier.cs dosyası bir arka plan servistir.
-Her gün saat 09:00'da, ertesi gün teslim tarihi olan görevler için kullanıcıya otomatik e-posta gönderimi yapar.
-
-E-postaların gönderilebilmesi için:
-EmailService.cs yapılandırılmalı
-appsettings.json içinde SMTP ayarları (Host, Port, Username, Password) doğru girilmelidir.
-NOT : E-posta için mailtrap kullanıldı.
 
 -----
 
