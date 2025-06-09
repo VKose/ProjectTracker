@@ -9,7 +9,7 @@ namespace ProjectTrackerAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Tüm endpointler için giriş (JWT) zorunludur
+    [Authorize] // TÃ¼m endpointler iÃ§in giriÃ¾ (JWT) zorunludur
     public class ProjectController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,32 +19,32 @@ namespace ProjectTrackerAPI.Controllers
             _context = context;
         }
 
-        // TÜM PROJELERİ GETİR
+        // TÃœM PROJELERÃ GETÃR
         // GET: /api/project
         [HttpGet]
-        [Authorize(Roles = "Admin,Manager,Employee")] // Gerekirse bu rollerle sınırlandırılabilir
+        [Authorize(Roles = "Admin,Manager,Employee")] 
         public IActionResult GetAll()
         {
             try
             {
                 var projects = _context.Projects
-                    .Include(p => p.Customer) // Projeye ait müşteri bilgisi
-                    .Include(p => p.Users)    // Projede görevli kullanıcılar
+                    .Include(p => p.Customer) // Projeye ait mÃ¼Ã¾teri bilgisi
+                    .Include(p => p.Users)    // Projede gÃ¶revli kullanÃ½cÃ½lar
                     .ToList();
 
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                // Hata varsa 500 dön
-                return StatusCode(500, $"! Sunucu hatası: {ex.Message} | {ex.InnerException?.Message}");
+                // Hata varsa 500 dÃ¶n
+                return StatusCode(500, $"! Sunucu hatasÃ½: {ex.Message} | {ex.InnerException?.Message}");
             }
         }
 
-        // ID'YE GÖRE PROJE GETİR
+        // ID'YE GÃ–RE PROJE GETÃR
         // GET: /api/project/{id}
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Manager,Employee")] // Gerekirse sadece belirli roller
+        [Authorize(Roles = "Admin,Manager,Employee")]
         public IActionResult GetById(int id)
         {
             var project = _context.Projects
@@ -57,7 +57,7 @@ namespace ProjectTrackerAPI.Controllers
             return Ok(project);
         }
 
-        // YENİ PROJE OLUŞTUR
+        // YENÃ PROJE OLUÃTUR
         // POST: /api/project
         [HttpPost]
         [Authorize(Roles = "Admin,Manager")]
@@ -69,7 +69,7 @@ namespace ProjectTrackerAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = project.Id }, project);
         }
 
-        // PROJEYİ GÜNCELLE
+        // PROJEYÃ GÃœNCELLE
         // PUT: /api/project/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Manager")]
@@ -86,7 +86,7 @@ namespace ProjectTrackerAPI.Controllers
             return NoContent();
         }
 
-        // PROJE SİL (Sadece Admin)
+        // PROJE SÃL (Sadece Admin)
         // DELETE: /api/project/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
@@ -110,7 +110,7 @@ namespace ProjectTrackerAPI.Controllers
             var currentUserIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (!int.TryParse(currentUserIdStr, out var currentUserId))
-                return Unauthorized("Kullanıcı kimliği alınamadı.");
+                return Unauthorized("KullanÃ½cÃ½ kimliÃ°i alÃ½namadÃ½.");
 
             var project = _context.Projects
                 .Include(p => p.Users)
@@ -119,20 +119,20 @@ namespace ProjectTrackerAPI.Controllers
             var user = _context.Users.Find(userId);
 
             if (project == null || user == null)
-                return NotFound("Proje veya kullanıcı bulunamadı.");
+                return NotFound("Proje veya kullanÃ½cÃ½ bulunamadÃ½.");
 
-            // Manager sadece sorumlu olduğu projelere kullanıcı atayabilir
+            // Manager sadece sorumlu olduÃ°u projelere kullanÃ½cÃ½ atayabilir
             if (role == "Manager" && !project.Users.Any(u => u.Id == currentUserId))
-                return Forbid("Bu projede kullanıcı atama yetkiniz yok.");
+                return Forbid("Bu projede kullanÃ½cÃ½ atama yetkiniz yok.");
 
             if (!project.Users.Contains(user))
                 project.Users.Add(user);
 
             _context.SaveChanges();
-            return Ok("Kullanıcı projeye atandı.");
+            return Ok("KullanÃ½cÃ½ projeye atandÃ½.");
         }
 
-        // PROJEYE MÜŞTERİ ATA (Sadece Admin)
+        // PROJEYE MÃœÃTERÃ ATA (Sadece Admin)
         // POST: /api/project/{id}/assign-customer/{customerId}
         [HttpPost("{id}/assign-customer/{customerId}")]
         [Authorize(Roles = "Admin")]
@@ -142,12 +142,12 @@ namespace ProjectTrackerAPI.Controllers
             var customer = _context.Customers.Find(customerId);
 
             if (project == null || customer == null)
-                return NotFound("Proje veya müşteri bulunamadı.");
+                return NotFound("Proje veya mÃ¼Ã¾teri bulunamadÃ½.");
 
             project.CustomerId = customerId;
 
             _context.SaveChanges();
-            return Ok("Müşteri projeye atandı.");
+            return Ok("MÃ¼Ã¾teri projeye atandÃ½.");
         }
     }
 }
