@@ -9,7 +9,7 @@ namespace ProjectTrackerAPI.Controllers
 {
     [ApiController]
 
-    // /api/todo ile eriþilir
+    // /api/todo ile eriÃ¾ilir
     [Route("api/[controller]")]
     [Authorize]
     public class TodoController : ControllerBase
@@ -20,12 +20,12 @@ namespace ProjectTrackerAPI.Controllers
             _context = context;
         }
 
-        // TÜM GÖREVLERÝ GETÝR
+        // TÃœM GÃ–REVLERÃ GETÃR
         // GET /api/todo
         [HttpGet]
         public IActionResult GetAll()
         {
-            // Görevlerle birlikte atanan kullanýcý ve projeyi dahil et
+            // GÃ¶revlerle birlikte atanan kullanÃ½cÃ½ ve projeyi dahil et
             var todos = _context.Todos
                 .Include(t => t.AssignedUser)
                 .Include(t => t.Project)
@@ -34,7 +34,7 @@ namespace ProjectTrackerAPI.Controllers
             return Ok(todos);
         }
 
-        // YENÝ GÖREV OLUÞTUR (Sadece Admin ve Manager)
+        // YENÃ GÃ–REV OLUÃžTUR (Sadece Admin ve Manager)
         // POST /api/todo
         [HttpPost]
         [Authorize(Roles = "Admin,Manager")]
@@ -43,11 +43,11 @@ namespace ProjectTrackerAPI.Controllers
             _context.Todos.Add(todo);
             _context.SaveChanges();
 
-            // Oluþturulan görevi geri döndür
+            // OluÃ¾turulan gÃ¶revi geri dÃ¶ndÃ¼r
             return CreatedAtAction(nameof(GetAll), todo);
         }
 
-        // GÖREVÝ GÜNCELLE (Sadece Admin ve Manager)
+        // GÃ–REVÃ GÃœNCELLE (Sadece Admin ve Manager)
         // PUT /api/todo/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Manager")]
@@ -56,17 +56,17 @@ namespace ProjectTrackerAPI.Controllers
             var todo = _context.Todos.Find(id);
             if (todo == null) return NotFound();
 
-            // Görev bilgilerini güncelle
+            // GÃ¶rev bilgilerini gÃ¼ncelle
             todo.Title = updated.Title;
             todo.Description = updated.Description;
             todo.Status = updated.Status;
             todo.DueDate = updated.DueDate;
 
             _context.SaveChanges();
-            return NoContent(); // Baþarýlý ama içerik yok
+            return NoContent(); // BaÃ¾arÃ½lÃ½ ama iÃ§erik yok
         }
 
-        // GÖREVÝ SÝL (Sadece Admin)
+        // GÃ–REVÃ SÃL (Sadece Admin)
         // DELETE /api/todo/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
@@ -78,10 +78,10 @@ namespace ProjectTrackerAPI.Controllers
             _context.Todos.Remove(todo);
             _context.SaveChanges();
 
-            return Ok("Görev silindi.");
+            return Ok("GÃ¶rev silindi.");
         }
 
-        // GÖREVE KULLANICI ATA (Sadece Admin ve Manager)
+        // GÃ–REVE KULLANICI ATA (Sadece Admin ve Manager)
         // POST /api/todo/{id}/assign-user/{userId}
         [HttpPost("{id}/assign-user/{userId}")]
         [Authorize(Roles = "Admin,Manager")]
@@ -93,62 +93,62 @@ namespace ProjectTrackerAPI.Controllers
             if (todo == null || user == null)
                 return NotFound();
 
-            // Kullanýcýyý göreve ata
+            // KullanÃ½cÃ½yÃ½ gÃ¶reve ata
             todo.AssignedUserId = userId;
             _context.SaveChanges();
 
-            return Ok("Kullanýcý göreve atandý.");
+            return Ok("KullanÃ½cÃ½ gÃ¶reve atandÃ½.");
         }
 
-        // GÖREV DURUMUNU GÜNCELLE
+        // GÃ–REV DURUMUNU GÃœNCELLE
         // PUT /api/todo/{id}/status
         [HttpPut("{id}/status")]
-        [Authorize] // EKSÝKTÝ: Giriþ yapmamýþ biri görev güncelleyebilirdi!
+        [Authorize]
         public IActionResult UpdateStatus(int id, [FromBody] string newStatus)
         {
             var todo = _context.Todos.Find(id);
             if (todo == null) return NotFound();
 
-            // Durumu güncelle (Bekliyor, Devam Ediyor, Tamamlandý)
+            // Durumu gÃ¼ncelle (Bekliyor, Devam Ediyor, TamamlandÃ½)
             todo.Status = newStatus;
             _context.SaveChanges();
 
-            return Ok("Durum güncellendi.");
+            return Ok("Durum gÃ¼ncellendi.");
         }
 
-        // GÖREVE ATANAN KULLANICIYA E-POSTA GÖNDER (Sadece Admin ve Manager)
+        // GÃ–REVE ATANAN KULLANICIYA E-POSTA GÃ–NDER (Sadece Admin ve Manager)
         // POST /api/todo/{id}/notify
         [HttpPost("{id}/notify")]
         [Authorize(Roles = "Admin,Manager")]
         public IActionResult NotifyUser(int id, [FromServices] EmailService mail)
         {
-            // Görevi, atanan kullanýcýyý ve projeyi getir
+            // GÃ¶revi, atanan kullanÃ½cÃ½yÃ½ ve projeyi getir
             var todo = _context.Todos
                 .Include(t => t.AssignedUser)
                 .Include(t => t.Project)
                 .FirstOrDefault(t => t.Id == id);
 
             if (todo == null || todo.AssignedUser == null)
-                return NotFound("Görev veya kullanýcý bulunamadý.");
+                return NotFound("GÃ¶rev veya kullanÃ½cÃ½ bulunamadÃ½.");
 
-            // HTML e-posta içeriðini hazýrla
+            // HTML e-posta iÃ§eriÃ°ini hazÃ½rla
             var htmlBody = $@"
-                <h3>Yaklaþan Görev Hatýrlatmasý</h3>
+                <h3>YaklaÃ¾an GÃ¶rev HatÃ½rlatmasÃ½</h3>
                 <p><strong>Proje:</strong> {todo.Project?.Title ?? "Bilinmiyor"}</p>
-                <p><strong>Görev:</strong> {todo.Title}</p>
+                <p><strong>GÃ¶rev:</strong> {todo.Title}</p>
                 <p><strong>Termin:</strong> {todo.DueDate:dd.MM.yyyy}</p>
                 <p><strong>Sorumlu:</strong> {todo.AssignedUser.Name}</p>
             ";
 
-            // E-postayý gönder
+            // E-postayÃ½ gÃ¶nder
             mail.Send(
                 to: todo.AssignedUser.Email,
-                subject: $"Görev Hatýrlatmasý: {todo.Title}",
+                subject: $"GÃ¶rev HatÃ½rlatmasÃ½: {todo.Title}",
                 body: htmlBody,
                 isHtml: true
             );
 
-            return Ok("HTML formatlý e-posta gönderildi.");
+            return Ok("HTML formatlÃ½ e-posta gÃ¶nderildi.");
         }
     }
 }
