@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "JWT Authorization. \r\n\r\n" +
-                      "Örnek: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
+                      "Sistemden gelen tokeni girin: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... gibi'"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
