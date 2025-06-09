@@ -13,7 +13,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(x =>
         x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 
-// Swagger için JWT tanýmý eklenir (Bearer token desteði)
+// Swagger iÃ§in JWT tanÃ½mÃ½ eklenir (Bearer token desteÃ°i)
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -23,8 +23,8 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n" +
-                      "Örnek: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
+        Description = "JWT Authorization. \r\n\r\n" +
+                      "Ã–rnek: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -43,7 +43,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// CORS ayarý – React gibi dýþ istemcilerle baðlantý için gerekli
+// CORS ayarÃ½ â€“ React gibi dÃ½Ã¾ istemcilerle baÃ°lantÃ½ iÃ§in gerekli
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -54,11 +54,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-// JWT ayarlarý konfigürasyondan çekiliyor
+// JWT ayarlarÃ½ konfigÃ¼rasyondan Ã§ekiliyor
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<JwtHelper>();
 
-// JWT Authentication ayarlarý
+// JWT Authentication ayarlarÃ½
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -67,7 +67,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
-        ?? throw new InvalidOperationException("JWT ayarlarý bulunamadý.");
+        ?? throw new InvalidOperationException("JWT ayarlarÃ½ bulunamadÃ½.");
 
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -88,27 +88,27 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<EmailService>();
 builder.Services.AddHostedService<DailyTaskNotifier>();
 
-// Veritabaný baðlantýsý
+// VeritabanÃ½ baÃ°lantÃ½sÃ½
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Geliþtirme ortamýnda Swagger UI
+// GeliÃ¾tirme ortamÃ½nda Swagger UI
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Middleware sýralamasý önemli
+// Middleware sÃ½ralamasÃ½ Ã¶nemli
 app.UseHttpsRedirection();
 
-app.UseCors();           // CORS Authentication'dan önce olmalý
+app.UseCors();           // CORS Authentication'dan Ã¶nce olmalÃ½
 
-app.UseAuthentication(); // Kullanýcý doðrulama iþlemleri
-app.UseAuthorization();  // Yetki kontrolü
+app.UseAuthentication(); // KullanÃ½cÃ½ doÃ°rulama iÃ¾lemleri
+app.UseAuthorization();  // Yetki kontrolÃ¼
 
-app.MapControllers();    // Route'larý aktif et
+app.MapControllers();    // Route'larÃ½ aktif et
 
 app.Run();
